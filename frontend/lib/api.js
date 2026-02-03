@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export async function apiRequest(path, options = {}) {
   const token = typeof window !== "undefined" ? localStorage.getItem("hms_token") : null;

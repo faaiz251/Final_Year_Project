@@ -26,17 +26,27 @@ const app = express();
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/healthcare_management_fyp';
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:3000';
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://healthcare-management-system-vert.vercel.app"
+];
 
 // Core middleware
 app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: CLIENT_ORIGIN,
-    credentials: true,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true
   })
 );
+app.options("*", cors());
 
 // Routes
 app.use('/api/auth', authRoutes);
