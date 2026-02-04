@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { apiRequest } from "../../../lib/api";
@@ -32,23 +33,43 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-50">
-      <div className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900/80 p-6 shadow-lg">
-        <h1 className="text-xl font-semibold mb-4">Reset Password</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm mb-1">New Password</label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-b from-emerald-50 to-teal-50 p-4">
+      <div className="w-full max-w-md">
+        <div className="space-y-6">
+          <div className="space-y-2 text-center">
+            <h1 className="text-3xl font-bold text-foreground">Reset password</h1>
+            <p className="text-muted-foreground">Enter your new password below</p>
           </div>
-          <Button type="submit" disabled={submitting} className="w-full">
-            {submitting ? "Resetting..." : "Reset password"}
-          </Button>
-        </form>
+
+          <div className="bg-card border border-border rounded-lg shadow-sm p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-muted-foreground">New Password</label>
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full"
+                />
+              </div>
+              <Button 
+                type="submit" 
+                disabled={submitting} 
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+              >
+                {submitting ? "Resetting..." : "Reset password"}
+              </Button>
+            </form>
+          </div>
+
+          <div className="text-center text-sm text-muted-foreground">
+            <Link href="/login" className="text-emerald-600 hover:text-emerald-700 font-medium">
+              Back to login
+            </Link>
+          </div>
+        </div>
       </div>
     </main>
   );

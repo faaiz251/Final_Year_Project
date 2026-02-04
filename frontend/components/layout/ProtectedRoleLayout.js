@@ -22,7 +22,7 @@ export default function ProtectedRoleLayout({ role, children }) {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
         <p>Loading...</p>
       </div>
     );

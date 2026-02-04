@@ -1,8 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-slate-50 text-slate-900;
+/*
+  Unified design tokens for HMS frontend.
+  - Primary: Emerald (HSL 136 53% 47%)
+  - Secondary/Accent: Teal (HSL 166 76% 40%)
+*/
+
+@layer base {
+  :root {
+    /* Core */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+
+    /* Surface / cards */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+
+    /* Popovers */
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+
+    /* PRIMARY - Emerald (#16c74a) */
+    --primary: 136 53% 47%;
+    --primary-foreground: 0 0% 100%;
+
+    /* SECONDARY / ACCENT - Teal (#10b981) */
+    --secondary: 166 76% 40%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Muted */
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+
+    /* Destructive */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Borders / inputs / ring */
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 136 53% 47%;
+
+    /* Charts */
+    --chart-1: 136 53% 47%;
+    --chart-2: 166 76% 40%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+
+    --radius: 0.5rem;
+  }
+
+  /* Dark mode - preserve emerald/teal accents while switching backgrounds */
+  .dark {
+    --background: 0 0% 6%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 136 53% 47%;
+    --primary-foreground: 0 0% 3.9%;
+    --secondary: 166 76% 40%;
+    --secondary-foreground: 0 0% 3.9%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 166 76% 40%;
+    --accent-foreground: 0 0% 3.9%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 136 53% 47%;
+    --chart-1: 136 53% 47%;
+    --chart-2: 166 76% 40%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+
+  /* Ensure document sizing and font smoothing */
+  html, body, #__next {
+    height: 100%;
+  }
+
+  body {
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    @apply bg-background text-foreground;
+  }
+
+  /* Global border color utility (used by components) */
+  * {
+    @apply border-border;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-emerald-600 text-white hover:bg-emerald-700;
+  }
+
+  .card {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+  }
 }
 

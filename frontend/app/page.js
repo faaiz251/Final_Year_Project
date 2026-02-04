@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { Button } from "../components/ui/button";
 import { useAuth } from "../context/AuthContext";
+import hms from './image.png';
 
 export default function HomePage() {
   const { user, loading } = useAuth();
@@ -11,7 +14,6 @@ export default function HomePage() {
   useEffect(() => {
     if (loading) return;
     if (!user) {
-      // keep user on landing page when unauthenticated
       return;
     } else {
       router.replace(`/${user.role}`);
@@ -19,18 +21,54 @@ export default function HomePage() {
   }, [user, loading, router]);
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 text-slate-50">
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-emerald-50/30">
       {!loading && !user ? (
-        <div className="max-w-3xl p-8 rounded-lg bg-white/5 border border-white/10 text-center">
-          <h1 className="text-3xl font-semibold mb-4">Healthcare Management System</h1>
-          <p className="mb-6 text-slate-200">Book appointments, manage records, and collaborate securely.</p>
-          <div className="space-x-3">
-            <button onClick={() => router.push('/login')} className="px-4 py-2 bg-emerald-500 rounded-md">Sign in</button>
-            <button onClick={() => router.push('/register')} className="px-4 py-2 bg-transparent border border-white/20 rounded-md">Create account</button>
+        <section className="w-full max-w-6xl p-6 md:p-12 grid gap-8 md:grid-cols-2 items-center">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h1 className="text-5xl md:text-6xl font-bold text-foreground">Healthcare Management System</h1>
+              <p className="text-lg text-emerald-600 font-medium">Modern. Secure. Reliable.</p>
+            </div>
+            <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
+              A comprehensive platform to book appointments, manage medical records, and streamline clinical workflows. Trusted by healthcare professionals for everyday care.
+            </p>
+            <ul className="space-y-3 text-muted-foreground">
+              <li className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-emerald-600 rounded-full"></span>
+                Easy appointment booking and scheduling
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-emerald-600 rounded-full"></span>
+                Secure electronic prescriptions and records
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-emerald-600 rounded-full"></span>
+                Role-based access for doctors, staff, and patients
+              </li>
+            </ul>
+            <div className="flex flex-col sm:flex-row items-center gap-3 pt-4">
+              <Button onClick={() => router.push('/login')} size="lg" className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700">
+                Sign in
+              </Button>
+              <Button onClick={() => router.push('/register')} variant="outline" size="lg" className="w-full sm:w-auto">
+                Create account
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground pt-2">Built with privacy and simplicity in mind.</p>
           </div>
-        </div>
+
+          <div className="rounded-xl overflow-hidden shadow-lg hidden md:block relative h-80">
+            <Image
+              src={hms}
+              alt="Hospital staff collaborating"
+              fill
+              className="object-cover"
+              sizes="(min-width: 768px) 50vw, 100vw"
+            />
+          </div>
+        </section>
       ) : (
-        <p>Loading...</p>
+        <p className="text-slate-600">Loading...</p>
       )}
     </main>
   );
