@@ -10,6 +10,7 @@ const {
   resetPassword,
   getAvailableRoles,
 } = require('../controllers/authController');
+const { DOCTOR_SPECIALTIES } = require('../config/specialties');
 
 const router = express.Router();
 
@@ -38,6 +39,9 @@ router.get('/me', authMiddleware, getMe);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 router.get('/available-roles', getAvailableRoles);
+router.get('/specialties', (req, res) => {
+  res.json({ specialties: DOCTOR_SPECIALTIES });
+});
 
 module.exports = router;
 

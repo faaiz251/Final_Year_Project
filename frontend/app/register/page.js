@@ -13,11 +13,13 @@ export default function RegisterPage() {
   const { setUser } = useAuth();
   const router = useRouter();
   const [roles, setRoles] = useState(["patient"]);
+  const [specialties, setSpecialties] = useState([]);
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
     role: "patient",
+    specialty: "",
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -25,7 +27,6 @@ export default function RegisterPage() {
     apiRequest("/auth/available-roles")
       .then((data) => {
         let available = data.roles || ["admin", "doctor", "staff", "patient"];
-        // handle API returning a comma-separated string accidentally
         if (typeof available === "string") {
           available = available.split(",").map((r) => r.trim()).filter(Boolean);
         }
@@ -37,11 +38,27 @@ export default function RegisterPage() {
       .catch(() => {
         // fallback to default patient
       });
+
+    // Load specialties for doctor registration
+    apiRequest("/auth/specialties")
+      .then((data) => {
+        setSpecialties(data.specialties || []);
+      })
+      .catch(() => {
+        // fallback to empty
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate specialty for doctors
+    if (form.role === "doctor" && !form.specialty) {
+      toast.error("Please select a specialty for doctor registration");
+      return;
+    }
+
     setSubmitting(true);
     try {
       const data = await apiRequest("/auth/register", {
@@ -118,6 +135,29 @@ export default function RegisterPage() {
                   Admin can be registered only once; after that it is removed from this list.
                 </p>
               </div>
+
+              {/* Show specialty dropdown for doctors */}
+              {form.role === "doctor" && (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-muted-foreground">Medical Specialty</label>
+                  <select
+                    className="h-10 w-full rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    value={form.specialty}
+                    onChange={(e) => setForm({ ...form, specialty: e.target.value })}
+                  >
+                    <option value="">Select your specialty...</option>
+                    {specialties.map((spec) => (
+                      <option key={spec.name} value={spec.name}>
+                        {spec.name} - ₹{spec.fee}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-muted-foreground">
+                    Choose your medical specialty. The consultation fee will be set accordingly.
+                  </p>
+                </div>
+              )}
+
               <Button 
                 type="submit" 
                 disabled={submitting} 

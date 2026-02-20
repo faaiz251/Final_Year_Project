@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const { validationResult } = require('express-validator');
 const User = require('../models/User');
 const { generateToken } = require('../utils/tokenUtils');
+const { DOCTOR_SPECIALTIES } = require('../config/specialties');
 
 const register = async (req, res) => {
   try {
@@ -11,12 +12,25 @@ const register = async (req, res) => {
       return res.status(400).json({ message: 'Validation failed', errors: errors.array() });
     }
 
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, specialty } = req.body;
 
       const allowedRoles = ['admin', 'doctor', 'patient', 'staff'];
       if (role && !allowedRoles.includes(role)) {
         return res.status(400).json({ message: 'Invalid role specified' });
       }
+
+    // If registering as doctor, specialty is required
+    if (role === 'doctor' && !specialty) {
+      return res.status(400).json({ message: 'Specialty is required for doctor registration' });
+    }
+
+    // Validate specialty exists
+    if (role === 'doctor') {
+      const specialtyExists = DOCTOR_SPECIALTIES.find(s => s.name === specialty);
+      if (!specialtyExists) {
+        return res.status(400).json({ message: 'Invalid specialty selected' });
+      }
+    }
 
     const existing = await User.findOne({ email });
     if (existing) {
@@ -34,11 +48,18 @@ const register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
+    // Get specialty fee for doctors
+    const specialtyFee = role === 'doctor' 
+      ? DOCTOR_SPECIALTIES.find(s => s.name === specialty)?.fee || 0 
+      : 0;
+
     const user = await User.create({
       name,
       email,
       passwordHash,
       role: role || 'patient',
+      specialty: role === 'doctor' ? specialty : undefined,
+      specialtyFee: role === 'doctor' ? specialtyFee : 0,
     });
 
     const token = generateToken(user);
@@ -49,6 +70,8 @@ const register = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        specialty: user.specialty,
+        specialtyFee: user.specialtyFee,
       },
     });
   } catch (err) {

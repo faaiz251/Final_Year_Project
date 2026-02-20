@@ -21,6 +21,8 @@ const medicalRoutes = require('./routes/medicalRoutes');
 const staffRoutes = require('./routes/staffRoutes');
 const doctorRoutes = require('./routes/doctorRoutes');
 const feeRoutes = require('./routes/feeRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
+const pdfRoutes = require('./routes/pdfRoutes');
 
 const app = express();
 
@@ -57,6 +59,8 @@ app.use('/api', medicalRoutes);
 app.use('/api/staff', staffRoutes);
 app.use('/api/doctor', doctorRoutes);
 app.use('/api/fees', feeRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/pdf', pdfRoutes);
 
 // Simple health check
 app.get('/api/health', (req, res) => {

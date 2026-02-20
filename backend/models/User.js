@@ -17,6 +17,8 @@ const userSchema = new mongoose.Schema(
     address: { type: String },
     department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department' },
     specialization: { type: String }, // for doctors
+    specialty: { type: String }, // for doctors - new specialty field
+    specialtyFee: { type: Number, default: 0 }, // doctor's consultation fee based on specialty
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },

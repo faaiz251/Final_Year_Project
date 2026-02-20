@@ -2,12 +2,13 @@ const Appointment = require('../models/Appointment');
 
 const createAppointment = async (req, res) => {
   try {
-    const { doctorId, date, time, reason, disease, fee, paymentConfirmed } = req.body;
+    const { doctorId, date, time, reason, disease, fee, paymentConfirmed, paymentMethod } = req.body;
 
-    // Require payment to be confirmed before creating a booked appointment
-    if (!paymentConfirmed) {
-      return res.status(402).json({ message: 'Payment required before booking' });
-    }
+    // For offline payment, just confirm the appointment
+    // For online payment, the appointment is created with pending payment status
+    const isOfflinePayment = paymentMethod === 'offline';
+    const appointmentStatus = isOfflinePayment ? 'confirmed' : 'pending';
+    const paymentStatus = isOfflinePayment ? 'pending' : 'pending';
 
     const appointment = await Appointment.create({
       patient: req.user._id,
@@ -17,14 +18,15 @@ const createAppointment = async (req, res) => {
       reason,
       disease,
       fee: fee || 0,
-      paymentStatus: paymentConfirmed ? 'paid' : 'pending',
-      status: paymentConfirmed ? 'confirmed' : 'pending',
+      paymentStatus,
+      paymentMethod: paymentMethod || 'offline',
+      status: appointmentStatus,
       createdBy: req.user._id,
     });
 
     const populated = await appointment
       .populate('patient', 'name email')
-      .populate('doctor', 'name email specialization')
+      .populate('doctor', 'name email specialization specialty specialtyFee')
       .execPopulate();
 
     res.status(201).json({ appointment: populated });
@@ -37,7 +39,7 @@ const createAppointment = async (req, res) => {
 const getMyAppointments = async (req, res) => {
   try {
     const appointments = await Appointment.find({ patient: req.user._id })
-      .populate('doctor', 'name email specialization')
+      .populate('doctor', 'name email specialization specialty specialtyFee')
       .sort({ date: 1 });
     res.json({ appointments });
   } catch (err) {

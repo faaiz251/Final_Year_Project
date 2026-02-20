@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { apiRequest } from "../../lib/api";
+import { useAuth } from "../../context/AuthContext";
 import { Card, CardHeader, CardTitle, CardContent } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
-import { Calendar, Users, Stethoscope, AlertCircle } from "lucide-react";
+import { Calendar, Users, Stethoscope, AlertCircle, DollarSign } from "lucide-react";
 
 export default function DoctorDashboardPage() {
+  const { user } = useAuth();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -39,7 +41,7 @@ export default function DoctorDashboardPage() {
 
   const paymentStatusColor = {
     pending: "bg-yellow-100 text-yellow-800",
-    completed: "bg-emerald-100 text-emerald-800",
+    paid: "bg-emerald-100 text-emerald-800",
     failed: "bg-red-100 text-red-800",
   };
 
@@ -49,6 +51,27 @@ export default function DoctorDashboardPage() {
         <h1 className="text-4xl font-bold text-slate-900">Doctor Dashboard</h1>
         <p className="text-slate-600">Manage your appointments and patient consultations</p>
       </div>
+
+      {/* Doctor Profile Card */}
+      {user && user.specialty && (
+        <Card className="border-emerald-200 shadow-sm bg-gradient-to-r from-emerald-50 to-teal-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900">{user.name}</h2>
+                <p className="text-emerald-700 font-semibold mt-1">
+                  <Stethoscope className="inline w-4 h-4 mr-2" />
+                  {user.specialty}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-slate-600">Consultation Fee</p>
+                <p className="text-3xl font-bold text-emerald-600 mt-1">₹{user.specialtyFee || 0}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Quick Stats */}
       <div className="grid gap-4 md:grid-cols-4">
