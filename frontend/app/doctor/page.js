@@ -7,21 +7,45 @@ import { apiRequest } from "../../lib/api";
 import { useAuth } from "../../context/AuthContext";
 import { Card, CardHeader, CardTitle, CardContent } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
-import { Calendar, Users, Stethoscope, AlertCircle, DollarSign } from "lucide-react";
+import { Button } from "../../components/ui/button";
+import { Calendar, Users, Stethoscope, AlertCircle, DollarSign, CheckCircle } from "lucide-react";
 
 export default function DoctorDashboardPage() {
   const { user } = useAuth();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [completingId, setCompletingId] = useState(null);
+  const [completeNotes, setCompleteNotes] = useState("");
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
 
-  useEffect(() => {
+  const loadAppointments = () => {
     apiRequest("/appointments/doctor")
       .then((data) => {
         setAppointments(data.appointments || []);
       })
       .catch(() => toast.error("Failed to load appointments"))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadAppointments();
   }, []);
+
+  const handleMarkComplete = async (appointmentId) => {
+    try {
+      await apiRequest(`/appointments/${appointmentId}/complete`, {
+        method: "PUT",
+        body: JSON.stringify({ doctorNotes: completeNotes }),
+      });
+      toast.success("Appointment marked as completed!");
+      setShowCompleteModal(false);
+      setCompletingId(null);
+      setCompleteNotes("");
+      loadAppointments();
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
 
   const todayCount = appointments.filter(a => {
     const today = new Date().toISOString().split('T')[0];
@@ -30,7 +54,8 @@ export default function DoctorDashboardPage() {
   }).length;
 
   const pendingCount = appointments.filter(a => a.status === "pending").length;
-  const confirmedCount = appointments.filter(a => a.status === "confirmed").length;
+  const confirmedCount = appointments.filter(a => !a.isCompleted && (a.status === "confirmed" || a.status === "pending")).length;
+  const completedCount = appointments.filter(a => a.isCompleted).length;
 
   const statusColor = {
     pending: "bg-yellow-100 text-yellow-800",
@@ -107,8 +132,8 @@ export default function DoctorDashboardPage() {
           <CardContent className="pt-6">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Pending</p>
-                <p className="text-3xl font-bold text-yellow-600 mt-2">{pendingCount}</p>
+                <p className="text-sm font-medium text-slate-600">Pending Review</p>
+                <p className="text-3xl font-bold text-yellow-600 mt-2">{confirmedCount}</p>
               </div>
               <div className="p-2 bg-yellow-100 rounded-lg">
                 <AlertCircle className="w-5 h-5 text-yellow-600" />
@@ -121,11 +146,11 @@ export default function DoctorDashboardPage() {
           <CardContent className="pt-6">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-600">Confirmed</p>
-                <p className="text-3xl font-bold text-emerald-600 mt-2">{confirmedCount}</p>
+                <p className="text-sm font-medium text-slate-600">Completed</p>
+                <p className="text-3xl font-bold text-blue-600 mt-2">{completedCount}</p>
               </div>
-              <div className="p-2 bg-emerald-100 rounded-lg">
-                <Users className="w-5 h-5 text-emerald-600" />
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <CheckCircle className="w-5 h-5 text-blue-600" />
               </div>
             </div>
           </CardContent>
@@ -135,7 +160,7 @@ export default function DoctorDashboardPage() {
       {/* Upcoming Appointments */}
       <Card className="border-slate-200 shadow-sm">
         <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-slate-200">
-          <CardTitle className="text-emerald-900">Upcoming Appointments</CardTitle>
+          <CardTitle className="text-emerald-900">Appointments</CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
           {loading ? (
@@ -180,20 +205,76 @@ export default function DoctorDashboardPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex items-center gap-2 flex-wrap mb-3">
                     <Badge className={`capitalize ${statusColor[a.status] || "bg-slate-100 text-slate-800"}`}>
                       {a.status}
                     </Badge>
                     <Badge className={`capitalize ${paymentStatusColor[a.paymentStatus] || "bg-slate-100 text-slate-800"}`}>
                       Payment: {a.paymentStatus}
                     </Badge>
+                    {a.isCompleted && (
+                      <Badge className="bg-green-100 text-green-800">Completed</Badge>
+                    )}
                   </div>
+
+                  {!a.isCompleted && a.status !== "cancelled" && (
+                    <Button
+                      onClick={() => {
+                        setCompletingId(a._id);
+                        setShowCompleteModal(true);
+                      }}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-sm"
+                      size="sm"
+                    >
+                      Mark as Completed
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Completion Modal */}
+      {showCompleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-md border-slate-200">
+            <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-slate-200">
+              <CardTitle className="text-emerald-900">Mark Appointment Completed</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6 space-y-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-slate-700">Doctor Notes (Optional)</label>
+                <textarea
+                  className="w-full h-24 px-3 py-2 border border-slate-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 resize-none"
+                  placeholder="Add any notes about the appointment..."
+                  value={completeNotes}
+                  onChange={(e) => setCompleteNotes(e.target.value)}
+                />
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => {
+                    setShowCompleteModal(false);
+                    setCompleteNotes("");
+                  }}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => handleMarkComplete(completingId)}
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                >
+                  Confirm
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Quick Actions */}
       <div className="grid gap-4 md:grid-cols-2">

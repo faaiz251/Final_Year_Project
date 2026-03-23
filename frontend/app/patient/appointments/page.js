@@ -181,16 +181,31 @@ export default function PatientAppointmentsPage() {
 
   const exportToPDF = async (appointmentId) => {
     try {
-      const pdfUrl = `/api/pdf/appointment/${appointmentId}`;
-      const link = document.createElement("a");
-      link.href = pdfUrl;
+      const token = localStorage.getItem("hms_token");
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/pdf/appointment/${appointmentId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to download PDF');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
       link.download = `appointment_${appointmentId}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      toast.success("PDF downloaded");
+      window.URL.revokeObjectURL(url);
+      toast.success("PDF downloaded successfully!");
     } catch (err) {
-      toast.error("Failed to download PDF");
+      console.error('PDF download error:', err);
+      toast.error(err.message || "Failed to download PDF");
     }
   };
 
