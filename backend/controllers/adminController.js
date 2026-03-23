@@ -95,12 +95,26 @@ const getSummary = async (req, res) => {
     const totalPatients = await User.countDocuments({ role: 'patient' });
     const totalStaff = await User.countDocuments({ role: 'staff' });
     const totalAppointments = await Appointment.countDocuments();
+    const pendingAppointments = await Appointment.countDocuments({ status: 'pending' });
+    const completedAppointments = await Appointment.countDocuments({ status: 'completed' });
+    const pendingPayments = await Appointment.countDocuments({ paymentStatus: 'pending' });
+    
+    // Get recent appointments
+    const recentAppointments = await Appointment.find()
+      .populate('patient', 'name email')
+      .populate('doctor', 'name specialty')
+      .sort({ createdAt: -1 })
+      .limit(10);
 
     res.json({
       totalDoctors,
       totalPatients,
       totalStaff,
       totalAppointments,
+      pendingAppointments,
+      completedAppointments,
+      pendingPayments,
+      recentAppointments,
     });
   } catch (err) {
     console.error(err);

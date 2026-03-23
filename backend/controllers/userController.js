@@ -14,7 +14,7 @@ const getProfile = async (req, res) => {
 const listDoctors = async (req, res) => {
   try {
     const doctors = await User.find({ role: 'doctor', status: 'active' }).select(
-      'name email specialization'
+      'name email specialization specialty specialtyFee'
     );
     res.json({ doctors });
   } catch (err) {

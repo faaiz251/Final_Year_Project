@@ -6,6 +6,7 @@ const {
   getMyAppointments,
   getDoctorAppointments,
   updateAppointmentStatus,
+  markAppointmentCompleted,
 } = require('../controllers/appointmentController');
 
 const router = express.Router();
@@ -23,6 +24,9 @@ router.get('/doctor', roleMiddleware('doctor'), getDoctorAppointments);
 
 // Doctor or admin updates status
 router.put('/:id/status', roleMiddleware('doctor', 'admin'), updateAppointmentStatus);
+
+// Doctor marks appointment as completed
+router.put('/:id/complete', roleMiddleware('doctor'), markAppointmentCompleted);
 
 module.exports = router;
 

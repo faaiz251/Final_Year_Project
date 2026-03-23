@@ -10,14 +10,17 @@ const appointmentSchema = new mongoose.Schema(
     disease: { type: String },
     fee: { type: Number, default: 0 },
     paymentStatus: { type: String, enum: ['pending', 'paid', 'failed'], default: 'pending' },
-    paymentMethod: { type: String, enum: ['online', 'offline'], default: 'offline' }, // new: payment method
-    razorpayOrderId: { type: String }, // new: for Razorpay integration
-    razorpayPaymentId: { type: String }, // new: for Razorpay integration
+    paymentMethod: { type: String, enum: ['online', 'offline'], default: 'offline' },
+    razorpayOrderId: { type: String },
+    razorpayPaymentId: { type: String },
     status: {
       type: String,
-      enum: ['pending', 'confirmed', 'cancelled', 'completed'],
+      enum: ['pending', 'confirmed', 'cancelled', 'completed', 'expired', 'no-show'],
       default: 'pending',
     },
+    isCompleted: { type: Boolean, default: false }, // Doctor marks if appointment was completed
+    completedAt: { type: Date }, // Timestamp when doctor marked as completed
+    doctorNotes: { type: String }, // Notes from doctor after appointment
     notes: { type: String },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   },
