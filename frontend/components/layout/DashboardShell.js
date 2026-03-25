@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, CalendarDays, Stethoscope, ClipboardList, Package, Settings, MessageSquare, Menu, X } from "lucide-react";
+import { LayoutDashboard, Users, CalendarDays, Stethoscope, ClipboardList, Package, Settings, MessageSquare, Menu, X, Pill, Heart, FileText } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 const navConfig = {
@@ -15,15 +15,18 @@ const navConfig = {
   ],
   doctor: [
     { href: "/doctor", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/doctor/attendance", label: "Attendance", icon: ClipboardList },
+    { href: "/doctor/appointments", label: "Appointments", icon: CalendarDays },
     { href: "/doctor/patients", label: "Patients", icon: Users },
+    { href: "/doctor/attendance", label: "Attendance", icon: ClipboardList },
     { href: "/doctor/prescriptions", label: "E-Prescribe", icon: Stethoscope },
   ],
   patient: [
     { href: "/patient", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/patient/profile", label: "Profile", icon: Settings },
     { href: "/patient/appointments", label: "Appointments", icon: CalendarDays },
-    { href: "/patient/records", label: "Records", icon: ClipboardList },
+    { href: "/patient/treatments", label: "Treatments", icon: Pill },
+    { href: "/patient/prescriptions", label: "Prescriptions", icon: FileText },
+    { href: "/patient/records", label: "Medical Records", icon: ClipboardList },
+    { href: "/patient/profile", label: "Profile", icon: Settings },
     { href: "/fees", label: "Fees", icon: Package },
   ],
   staff: [

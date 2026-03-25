@@ -81,10 +81,10 @@ exports.getDiseaseWiseSummary = async (req, res) => {
     const { patientId } = req.params;
 
     // Access control
-    const isPatient = patientId === req.user._id.toString();
+    const isPatient = patientId === req.user._id.toString() || req.user.id.toString() === patientId;
     const isAdmin = req.user.role === 'admin';
 
-    if (!isPatient && !isAdmin) {
+    if (!isPatient) {
       return res.status(403).json({ message: 'Not authorized' });
     }
 

@@ -26,3 +26,55 @@ export async function apiRequest(path, options = {}) {
   return data;
 }
 
+// Treatment APIs
+export const treatmentAPI = {
+  startTreatment: (appointmentId, data) =>
+    apiRequest(`/treatments/${appointmentId}/start`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  getTreatment: (appointmentId) =>
+    apiRequest(`/treatments/${appointmentId}`, { method: 'GET' }),
+  updateStatus: (appointmentId, treatmentStatus) =>
+    apiRequest(`/treatments/${appointmentId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ treatmentStatus }),
+    }),
+};
+
+// Chat APIs
+export const chatAPI = {
+  sendMessage: (appointmentId, message) =>
+    apiRequest(`/chats/${appointmentId}/messages`, {
+      method: 'POST',
+      body: JSON.stringify({ message }),
+    }),
+  getMessages: (appointmentId, limit = 50, page = 1) =>
+    apiRequest(`/chats/${appointmentId}/messages?limit=${limit}&page=${page}`, {
+      method: 'GET',
+    }),
+  markAsRead: (appointmentId, messageId) =>
+    apiRequest(`/chats/${appointmentId}/messages/${messageId}/read`, {
+      method: 'PATCH',
+    }),
+  getUnreadCount: (appointmentId) =>
+    apiRequest(`/chats/${appointmentId}/unread`, { method: 'GET' }),
+};
+
+// Prescription APIs
+export const prescriptionAPI = {
+  create: (data) =>
+    apiRequest('/prescriptions', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  getHistory: (patientId) =>
+    apiRequest(`/prescriptions/patient/${patientId}/history`, { method: 'GET' }),
+  getSummary: (patientId) =>
+    apiRequest(`/prescriptions/patient/${patientId}/summary`, { method: 'GET' }),
+  getByDisease: (patientId, disease) =>
+    apiRequest(`/prescriptions/patient/${patientId}/disease/${encodeURIComponent(disease)}`, {
+      method: 'GET',
+    }),
+};
+
