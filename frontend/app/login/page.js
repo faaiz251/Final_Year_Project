@@ -103,11 +103,11 @@ export default function LoginPage() {
             </div>
 
             {/* Demo Credentials */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
+            {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
               <p className="text-xs font-semibold text-blue-900">Demo Login (Admin):</p>
               <p className="text-xs text-blue-800">Email: <span className="font-mono">admin@gmail.com</span></p>
               <p className="text-xs text-blue-800">Password: <span className="font-mono">admin1234</span></p>
-            </div>
+            </div> */}
           </div>
 
           {/* Links */}
