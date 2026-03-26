@@ -121,7 +121,7 @@ export default function HomePage() {
           </section>
 
           {/* Stats Section */}
-          <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white">
+          {/* <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-12">
                 <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Trusted by Healthcare Professionals</h2>
@@ -142,7 +142,7 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-          </section>
+          </section> */}
         </>
       ) : (
         <div className="min-h-screen flex items-center justify-center">
