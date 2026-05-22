@@ -156,9 +156,9 @@ export default function RegisterPage() {
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
                 </div>
-                <p className="text-xs text-slate-500">
+                {/* <p className="text-xs text-slate-500">
                   Admin registration closes once an admin is created
-                </p>
+                </p> */}
               </div>
 
               {/* Medical Specialty (for doctors) */}

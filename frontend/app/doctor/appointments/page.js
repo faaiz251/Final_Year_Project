@@ -1,14 +1,27 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { apiRequest } from '@/lib/api';
-import { format } from 'date-fns';import toast from 'react-hot-toast';
-import { Calendar, Clock, User, FileText, AlertCircle, ChevronRight, Pill } from 'lucide-react';
+import { format, isValid } from 'date-fns';
+import toast from 'react-hot-toast';
+
+import {
+  Calendar,
+  Clock,
+  User,
+  FileText,
+  AlertCircle,
+  ChevronRight,
+  Pill,
+} from 'lucide-react';
 
 export default function DoctorAppointmentsPage() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('upcoming'); // upcoming, completed, cancelled
+
+  // upcoming | completed | cancelled
+  const [filter, setFilter] = useState('upcoming');
 
   useEffect(() => {
     fetchAppointments();
@@ -16,200 +29,374 @@ export default function DoctorAppointmentsPage() {
 
   const fetchAppointments = async () => {
     try {
-      const data = await apiRequest('/appointments');
-      setAppointments(data.appointments || []);
+      const data = await apiRequest('/appointments/doctor', 'GET');
+
+      console.log('BACKEND DATA => ', data);
+
+      setAppointments(data?.appointments || []);
     } catch (error) {
-      toast.error('Failed to load appointments');
       console.error(error);
+      toast.error('Failed to load appointments');
     } finally {
       setLoading(false);
     }
   };
 
+  // SAFE DATE
+  const getValidDate = (date) => {
+    if (!date) return null;
+
+    const parsedDate = new Date(date);
+
+    return isValid(parsedDate) ? parsedDate : null;
+  };
+
+  // SAFE FORMAT
+  const formatAppointmentDate = (date, formatType) => {
+    const parsedDate = getValidDate(date);
+
+    if (!parsedDate) return 'N/A';
+
+    return format(parsedDate, formatType);
+  };
+
+  // FILTER APPOINTMENTS
   const getFilteredAppointments = () => {
     const now = new Date();
-    return appointments.filter((apt) => {
-      const aptDate = new Date(apt.appointmentDate);
-      switch (filter) {
-        case 'upcoming':
-          return aptDate > now && apt.status !== 'completed' && apt.status !== 'cancelled';
-        case 'completed':
-          return apt.status === 'completed';
-        case 'cancelled':
-          return apt.status === 'cancelled';
-        default:
-          return true;
+
+    return appointments.filter((appointment) => {
+      const appointmentDate = getValidDate(appointment?.date);
+
+      // COMPLETED
+      if (filter === 'completed') {
+        return (
+          appointment?.status === 'completed' ||
+          appointment?.isCompleted === true
+        );
       }
+
+      // CANCELLED
+      if (filter === 'cancelled') {
+        return appointment?.status === 'cancelled';
+      }
+
+      // UPCOMING
+      if (filter === 'upcoming') {
+        return (
+          appointmentDate &&
+          appointmentDate >= now &&
+          appointment?.status !== 'completed' &&
+          appointment?.status !== 'cancelled' &&
+          appointment?.isCompleted !== true
+        );
+      }
+
+      return true;
     });
   };
 
+  // STATUS COLORS
   const getStatusBadgeColor = (status) => {
     switch (status) {
       case 'scheduled':
         return 'bg-blue-100 text-blue-700';
+
       case 'completed':
         return 'bg-green-100 text-green-700';
+
       case 'cancelled':
         return 'bg-red-100 text-red-700';
+
       default:
         return 'bg-gray-100 text-gray-700';
     }
   };
+
+  // COUNTS
+  const upcomingCount = appointments.filter((appointment) => {
+    const appointmentDate = getValidDate(appointment?.date);
+
+    return (
+      appointmentDate &&
+      appointmentDate >= new Date() &&
+      appointment?.status !== 'completed' &&
+      appointment?.status !== 'cancelled' &&
+      appointment?.isCompleted !== true
+    );
+  }).length;
+
+  const completedCount = appointments.filter((appointment) => {
+    return (
+      appointment?.status === 'completed' ||
+      appointment?.isCompleted === true
+    );
+  }).length;
+
+  const cancelledCount = appointments.filter((appointment) => {
+    return appointment?.status === 'cancelled';
+  }).length;
 
   const filteredAppointments = getFilteredAppointments();
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <p className="text-gray-600">Loading appointments...</p>
+        <p className="text-gray-600 text-lg">
+          Loading appointments...
+        </p>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-4">Patient Appointments</h1>
 
-          {/* Statistics */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="bg-white rounded-lg shadow p-4">
-              <p className="text-gray-600 text-sm mb-1">Upcoming</p>
-              <p className="text-3xl font-bold text-blue-600">
-                {appointments.filter((a) => {
-                  const d = new Date(a.appointmentDate);
-                  return d > new Date() && a.status !== 'cancelled';
-                }).length}
+      <div className="max-w-6xl mx-auto">
+
+        {/* HEADER */}
+        <div className="mb-8">
+
+          <h1 className="text-3xl font-bold text-gray-800 mb-6">
+            Patient Appointments
+          </h1>
+
+          {/* STATS */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+
+            {/* UPCOMING */}
+            <div className="bg-white rounded-xl shadow p-5">
+              <p className="text-sm text-gray-500 mb-2">
+                Upcoming
               </p>
+
+              <h2 className="text-3xl font-bold text-blue-600">
+                {upcomingCount}
+              </h2>
             </div>
-            <div className="bg-white rounded-lg shadow p-4">
-              <p className="text-gray-600 text-sm mb-1">Completed</p>
-              <p className="text-3xl font-bold text-green-600">
-                {appointments.filter((a) => a.status === 'completed').length}
+
+            {/* COMPLETED */}
+            <div className="bg-white rounded-xl shadow p-5">
+              <p className="text-sm text-gray-500 mb-2">
+                Completed
               </p>
+
+              <h2 className="text-3xl font-bold text-green-600">
+                {completedCount}
+              </h2>
             </div>
-            <div className="bg-white rounded-lg shadow p-4">
-              <p className="text-gray-600 text-sm mb-1">Total</p>
-              <p className="text-3xl font-bold text-gray-600">{appointments.length}</p>
+
+            {/* CANCELLED */}
+            <div className="bg-white rounded-xl shadow p-5">
+              <p className="text-sm text-gray-500 mb-2">
+                Cancelled
+              </p>
+
+              <h2 className="text-3xl font-bold text-red-600">
+                {cancelledCount}
+              </h2>
+            </div>
+
+            {/* TOTAL */}
+            <div className="bg-white rounded-xl shadow p-5">
+              <p className="text-sm text-gray-500 mb-2">
+                Total
+              </p>
+
+              <h2 className="text-3xl font-bold text-gray-700">
+                {appointments.length}
+              </h2>
             </div>
           </div>
 
-          {/* Filter Buttons */}
-          <div className="flex gap-2 flex-wrap">
-            {['upcoming', 'completed', 'cancelled'].map((filterOption) => (
+          {/* FILTERS */}
+          <div className="flex gap-3 flex-wrap">
+
+            {['upcoming', 'completed', 'cancelled'].map((item) => (
               <button
-                key={filterOption}
-                onClick={() => setFilter(filterOption)}
-                className={`px-4 py-2 rounded-lg font-medium transition ${
-                  filter === filterOption
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                key={item}
+                onClick={() => setFilter(item)}
+                className={`px-5 py-2 rounded-lg font-medium transition-all duration-200 ${
+                  filter === item
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                {filterOption.charAt(0).toUpperCase() + filterOption.slice(1)}
+                {item.charAt(0).toUpperCase() + item.slice(1)}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Appointments List */}
+        {/* EMPTY */}
         {filteredAppointments.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center">
+          <div className="bg-white rounded-xl shadow-md p-12 text-center">
+
             <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">No appointments</h2>
-            <p className="text-gray-600">
-              {filter === 'upcoming' ? 'No upcoming appointments scheduled' : `No ${filter} appointments`}
+
+            <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+              No appointments found
+            </h2>
+
+            <p className="text-gray-500">
+              No {filter} appointments available
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-5">
+
             {filteredAppointments.map((appointment) => {
+
               const hasTreatment =
-                appointment.treatment && appointment.treatment.treatmentStatus !== 'not-started';
-              const hasPrescription = appointment.prescriptions && appointment.prescriptions.length > 0;
+                appointment?.treatment &&
+                appointment?.treatment?.treatmentStatus !==
+                  'not-started';
+
+              const hasPrescription =
+                appointment?.prescriptions &&
+                appointment?.prescriptions?.length > 0;
 
               return (
                 <Link
-                  key={appointment._id}
-                  href={`/doctor/appointments/${appointment._id}`}
+                  key={appointment?._id}
+                  href={`/doctor/appointments/${appointment?._id}`}
                   className="block"
                 >
-                  <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold text-gray-800 mb-2">
-                          {appointment.patient?.name || 'Unknown Patient'}
-                        </h3>
-                        <div className="flex items-center gap-2 text-gray-600 mb-2">
+                  <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300 cursor-pointer">
+
+                    {/* TOP */}
+                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-5">
+
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                          {appointment?.patient?.name ||
+                            'Unknown Patient'}
+                        </h2>
+
+                        <div className="flex items-center gap-2 text-gray-600">
                           <User className="w-4 h-4" />
-                          <span>{appointment.patient?.email}</span>
+
+                          <span>
+                            {appointment?.patient?.email ||
+                              'No Email'}
+                          </span>
                         </div>
                       </div>
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusBadgeColor(appointment.status)}`}
-                      >
-                        {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
-                      </span>
+
+                      <div>
+                        <span
+                          className={`px-4 py-2 rounded-full text-sm font-semibold ${getStatusBadgeColor(
+                            appointment?.status
+                          )}`}
+                        >
+                          {appointment?.status || 'Unknown'}
+                        </span>
+                      </div>
                     </div>
 
-                    {/* Appointment Details Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    {/* DETAILS */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-5">
+
+                      {/* DATE */}
                       <div>
-                        <p className="text-sm text-gray-500 mb-1">Date</p>
+                        <p className="text-sm text-gray-500 mb-1">
+                          Date
+                        </p>
+
                         <p className="font-semibold flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
-                          {format(new Date(appointment.appointmentDate), 'MMM dd')}
+
+                          {formatAppointmentDate(
+                            appointment?.date,
+                            'MMM dd, yyyy'
+                          )}
                         </p>
                       </div>
+
+                      {/* TIME */}
                       <div>
-                        <p className="text-sm text-gray-500 mb-1">Time</p>
+                        <p className="text-sm text-gray-500 mb-1">
+                          Time
+                        </p>
+
                         <p className="font-semibold flex items-center gap-1">
                           <Clock className="w-4 h-4" />
-                          {format(new Date(appointment.appointmentDate), 'HH:mm')}
+
+                          {appointment?.time || 'N/A'}
                         </p>
                       </div>
+
+                      {/* REASON */}
                       <div>
-                        <p className="text-sm text-gray-500 mb-1">Reason</p>
-                        <p className="font-semibold">{appointment.reason || 'N/A'}</p>
+                        <p className="text-sm text-gray-500 mb-1">
+                          Reason
+                        </p>
+
+                        <p className="font-semibold">
+                          {appointment?.reason || 'N/A'}
+                        </p>
                       </div>
+
+                      {/* PAYMENT */}
                       <div>
-                        <p className="text-sm text-gray-500 mb-1">Disease</p>
-                        <p className="font-semibold">{appointment.disease || 'N/A'}</p>
+                        <p className="text-sm text-gray-500 mb-1">
+                          Payment
+                        </p>
+
+                        <p className="font-semibold capitalize">
+                          {appointment?.paymentStatus || 'N/A'}
+                        </p>
                       </div>
                     </div>
 
-                    {/* Treatment & Prescription Status */}
-                    <div className="flex gap-3 mb-4 flex-wrap">
+                    {/* TREATMENT + PRESCRIPTION */}
+                    <div className="flex flex-wrap gap-3 mb-5">
+
+                      {/* TREATMENT */}
                       {hasTreatment ? (
-                        <div className="bg-green-50 px-3 py-2 rounded-lg flex items-center gap-2">
+                        <div className="bg-green-50 px-4 py-2 rounded-lg flex items-center gap-2">
+
                           <Pill className="w-4 h-4 text-green-600" />
-                          <span className="text-sm text-green-700 font-semibold">
-                            ✓ Treatment: {appointment.treatment.treatmentName}
+
+                          <span className="text-sm text-green-700 font-medium">
+                            Treatment Started
                           </span>
                         </div>
                       ) : (
-                        <div className="bg-yellow-50 px-3 py-2 rounded-lg flex items-center gap-2">
+                        <div className="bg-yellow-50 px-4 py-2 rounded-lg flex items-center gap-2">
+
                           <AlertCircle className="w-4 h-4 text-yellow-600" />
-                          <span className="text-sm text-yellow-700">No treatment plan yet</span>
+
+                          <span className="text-sm text-yellow-700">
+                            No treatment plan
+                          </span>
                         </div>
                       )}
+
+                      {/* PRESCRIPTION */}
                       {hasPrescription && (
-                        <div className="bg-blue-50 px-3 py-2 rounded-lg flex items-center gap-2">
+                        <div className="bg-blue-50 px-4 py-2 rounded-lg flex items-center gap-2">
+
                           <FileText className="w-4 h-4 text-blue-600" />
-                          <span className="text-sm text-blue-700">{appointment.prescriptions.length} prescription(s)</span>
+
+                          <span className="text-sm text-blue-700">
+                            {appointment?.prescriptions?.length}{' '}
+                            prescription(s)
+                          </span>
                         </div>
                       )}
                     </div>
 
-                    {/* Footer */}
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                    {/* FOOTER */}
+                    <div className="border-t pt-4 flex items-center justify-between">
+
                       <p className="text-sm text-gray-600">
-                        Age: {appointment.patient?.age || 'N/A'} • {appointment.department || 'General'}
+                        Age:{' '}
+                        {appointment?.patient?.age || 'N/A'}
                       </p>
+
                       <ChevronRight className="w-5 h-5 text-gray-400" />
                     </div>
+
                   </div>
                 </Link>
               );

@@ -16,7 +16,7 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
       toast.error("Please fill in all fields");
       return;
@@ -43,7 +43,9 @@ export default function LoginPage() {
                 <Stethoscope className="w-8 h-8 text-emerald-600" />
               </div>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-slate-900">Welcome Back</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold text-slate-900">
+              Welcome Back
+            </h1>
             <p className="text-slate-600">Sign in to your Healthcare account</p>
           </div>
 
@@ -51,7 +53,9 @@ export default function LoginPage() {
           <div className="bg-white border border-slate-200 rounded-2xl shadow-lg p-8 space-y-6">
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-slate-700">Email Address</label>
+                <label className="block text-sm font-semibold text-slate-700">
+                  Email Address
+                </label>
                 <Input
                   type="email"
                   placeholder="you@example.com"
@@ -62,9 +66,11 @@ export default function LoginPage() {
                   disabled={submitting || loading}
                 />
               </div>
-              
+
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-slate-700">Password</label>
+                <label className="block text-sm font-semibold text-slate-700">
+                  Password
+                </label>
                 <Input
                   type="password"
                   placeholder="••••••••"
@@ -76,9 +82,9 @@ export default function LoginPage() {
                 />
               </div>
 
-              <Button 
-                type="submit" 
-                disabled={submitting || loading} 
+              <Button
+                type="submit"
+                disabled={submitting || loading}
                 className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg transition"
               >
                 {submitting || loading ? (
@@ -101,25 +107,24 @@ export default function LoginPage() {
                 <span className="px-2 bg-white text-slate-600">Or</span>
               </div>
             </div>
-
-            {/* Demo Credentials */}
-            {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
-              <p className="text-xs font-semibold text-blue-900">Demo Login (Admin):</p>
-              <p className="text-xs text-blue-800">Email: <span className="font-mono">admin@gmail.com</span></p>
-              <p className="text-xs text-blue-800">Password: <span className="font-mono">admin1234</span></p>
-            </div> */}
           </div>
 
           {/* Links */}
           <div className="space-y-3 text-center">
             <div>
-              <Link href="/forgot-password" className="text-sm text-emerald-600 hover:text-emerald-700 font-semibold transition">
+              <Link
+                href="/forgot-password"
+                className="text-sm text-emerald-600 hover:text-emerald-700 font-semibold transition"
+              >
                 Forgot your password?
               </Link>
             </div>
             <div className="text-slate-600 text-sm">
               New here?{" "}
-              <Link href="/register" className="text-emerald-600 hover:text-emerald-700 font-semibold transition">
+              <Link
+                href="/register"
+                className="text-emerald-600 hover:text-emerald-700 font-semibold transition"
+              >
                 Create an account
               </Link>
             </div>
@@ -129,4 +134,3 @@ export default function LoginPage() {
     </main>
   );
 }
-

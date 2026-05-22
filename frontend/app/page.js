@@ -119,30 +119,6 @@ export default function HomePage() {
               </div>
             </div>
           </section>
-
-          {/* Stats Section */}
-          {/* <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Trusted by Healthcare Professionals</h2>
-                <p className="text-slate-600 max-w-2xl mx-auto">Join thousands of doctors and patients using our platform</p>
-              </div>
-              <div className="grid md:grid-cols-3 gap-8">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-emerald-600 mb-2">500+</div>
-                  <p className="text-slate-600">Active Doctors</p>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-emerald-600 mb-2">10K+</div>
-                  <p className="text-slate-600">Satisfied Patients</p>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-emerald-600 mb-2">50K+</div>
-                  <p className="text-slate-600">Appointments Booked</p>
-                </div>
-              </div>
-            </div>
-          </section> */}
         </>
       ) : (
         <div className="min-h-screen flex items-center justify-center">
