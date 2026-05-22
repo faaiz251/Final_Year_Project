@@ -31,7 +31,6 @@ const navConfig = {
   ],
   staff: [
     { href: "/staff", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/staff/profile", label: "Profile", icon: Settings },
     { href: "/staff/schedule", label: "Schedule", icon: CalendarDays },
   ],
 };
